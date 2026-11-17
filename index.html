@@ -964,11 +964,11 @@
                         <i data-lucide="folder-kanban" class="w-4 h-4"></i>
                         <span>Folder & Bank Soal</span>
                     </button>
-                    <button type="button" onclick="switchProctorTab('accounts')" id="ptab-accounts" class="hidden px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:bg-slate-100 flex items-center gap-2">
+                    <button type="button" onclick="switchProctorTab('accounts')" id="ptab-accounts" style="display: none;" class="hidden px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:bg-slate-100 items-center gap-2">
                         <i data-lucide="graduation-cap" class="w-4 h-4"></i>
                         <span>Database Akun Siswa</span>
                     </button>
-                    <button type="button" onclick="switchProctorTab('staff')" id="ptab-staff" class="hidden px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:bg-slate-100 flex items-center gap-2">
+                    <button type="button" onclick="switchProctorTab('staff')" id="ptab-staff" style="display: none;" class="hidden px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:bg-slate-100 items-center gap-2">
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                         <span>Akun Proktor & Guru</span>
                     </button>
@@ -1387,9 +1387,11 @@
                 title: 'Seni Budaya - Kelas 7',
                 classLevel: '7',
                 durationMinutes: 30,
+                ownerId: 'staff-guru-ratna',
+                ownerName: 'Ibu Ratna Sari, S.Pd',
                 status: 'BELUM_DIMULAI',
                 submissionStatus: 'SUBMITTED',
-                submittedBy: 'Pak Aji, S.Pd',
+                submittedBy: 'Ibu Ratna Sari, S.Pd',
                 submittedAt: 'Siap Diujikan',
                 revisionCount: 0
             },
@@ -1398,6 +1400,8 @@
                 title: 'Informatika & TIK - Kelas 8',
                 classLevel: '8',
                 durationMinutes: 45,
+                ownerId: 'staff-guru-ratna',
+                ownerName: 'Ibu Ratna Sari, S.Pd',
                 status: 'BELUM_DIMULAI',
                 submissionStatus: 'SUBMITTED',
                 submittedBy: 'Ibu Ratna Sari, S.Pd',
@@ -1409,9 +1413,11 @@
                 title: 'IPA Terpadu - Kelas 9',
                 classLevel: '9',
                 durationMinutes: 60,
+                ownerId: 'staff-guru-ratna',
+                ownerName: 'Ibu Ratna Sari, S.Pd',
                 status: 'BELUM_DIMULAI',
                 submissionStatus: 'DRAFT',
-                submittedBy: 'Pak Aji, S.Pd',
+                submittedBy: 'Ibu Ratna Sari, S.Pd',
                 submittedAt: '',
                 revisionCount: 0
             }
@@ -1694,6 +1700,24 @@
         }
 
         /**
+         * HELPER ISOLASI KEPEMILIKAN FOLDER & SOAL ANTAR-GURU
+         */
+        function getVisibleExamsForCurrentStaff() {
+            if (currentRole === 'PROCTOR') {
+                return examsList;
+            }
+            if (currentRole === 'GURU' && activeStaffUser) {
+                return examsList.filter(ex => ex.ownerId === activeStaffUser.id);
+            }
+            return [];
+        }
+
+        function isCurrentGuruOwnerOfExam(exam) {
+            if (!exam) return false;
+            return currentRole === 'GURU' && activeStaffUser && exam.ownerId === activeStaffUser.id;
+        }
+
+        /**
          * SINKRONISASI REALTIME (localStorage + BroadcastChannel + storage event)
          */
         function loadAllDataFromStorage() {
@@ -1722,9 +1746,13 @@
                 examsList.forEach(ex => {
                     if (!ex.submissionStatus) {
                         ex.submissionStatus = 'DRAFT';
-                        ex.submittedBy = 'Guru Mapel';
+                        ex.submittedBy = 'Ibu Ratna Sari, S.Pd';
                         ex.submittedAt = '';
                         ex.revisionCount = 0;
+                    }
+                    if (!ex.ownerId) {
+                        ex.ownerId = 'staff-guru-ratna';
+                        ex.ownerName = ex.submittedBy || 'Ibu Ratna Sari, S.Pd';
                     }
                     if (!ex.durationMinutes) ex.durationMinutes = 30;
                 });
@@ -2364,6 +2392,8 @@
             const guruBuilderCol = document.getElementById('guru-question-builder-col');
             const guruListCol = document.getElementById('guru-questions-list-col');
             const roomFilterEl = document.getElementById('monitoring-room-filter');
+            const panelAccounts = document.getElementById('proctor-panel-accounts');
+            const panelStaff = document.getElementById('proctor-panel-staff');
 
             headerTitle.innerHTML = `${escapeHTML(activeStaffUser.name)}`;
             if (isProctor) {
@@ -2372,10 +2402,20 @@
                 headerSub.textContent = 'Kendali Mulai/Akhiri/Hapus Paket Ujian, Buka Blokir & Manajemen Akun';
                 headerIcon.className = 'w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-md';
                 btnCreateStudent.classList.remove('hidden');
+                btnCreateStudent.style.display = '';
                 btnResetAll.classList.remove('hidden');
+                btnResetAll.style.display = '';
                 bannerGuru.classList.add('hidden');
-                tabStaff.classList.remove('hidden');
-                tabAccounts.classList.remove('hidden');
+
+                // Tampilkan tab khusus Proktor secara eksplisit
+                if (tabStaff) {
+                    tabStaff.classList.remove('hidden');
+                    tabStaff.style.display = 'flex';
+                }
+                if (tabAccounts) {
+                    tabAccounts.classList.remove('hidden');
+                    tabAccounts.style.display = 'flex';
+                }
                 if (roomFilterEl) roomFilterEl.classList.remove('hidden');
 
                 if (proctorReadonlyBanner) proctorReadonlyBanner.classList.remove('hidden');
@@ -2390,10 +2430,28 @@
                 headerSub.textContent = `${activeStaffUser.assignedRoom || 'Ruang Pengawas'} • Folder Soal & Pengawasan Token`;
                 headerIcon.className = 'w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-black shadow-md';
                 btnCreateStudent.classList.add('hidden');
+                btnCreateStudent.style.display = 'none';
                 btnResetAll.classList.add('hidden');
+                btnResetAll.style.display = 'none';
                 bannerGuru.classList.remove('hidden');
-                tabStaff.classList.add('hidden');
-                tabAccounts.classList.add('hidden');
+
+                // Sembunyikan mutlak tab & panel Database Akun Siswa dan Akun Proktor & Guru dari Guru
+                if (tabStaff) {
+                    tabStaff.classList.add('hidden');
+                    tabStaff.style.display = 'none';
+                }
+                if (tabAccounts) {
+                    tabAccounts.classList.add('hidden');
+                    tabAccounts.style.display = 'none';
+                }
+                if (panelAccounts) {
+                    panelAccounts.classList.add('hidden');
+                    panelAccounts.style.display = 'none';
+                }
+                if (panelStaff) {
+                    panelStaff.classList.add('hidden');
+                    panelStaff.style.display = 'none';
+                }
                 if (roomFilterEl) roomFilterEl.classList.add('hidden');
 
                 if (proctorReadonlyBanner) proctorReadonlyBanner.classList.add('hidden');
@@ -2402,10 +2460,6 @@
                     guruListCol.classList.remove('lg:col-span-12');
                     guruListCol.classList.add('lg:col-span-7');
                 }
-                const panelAccounts = document.getElementById('proctor-panel-accounts');
-                const panelStaff = document.getElementById('proctor-panel-staff');
-                if (panelAccounts) panelAccounts.classList.add('hidden');
-                if (panelStaff) panelStaff.classList.add('hidden');
             }
         }
 
@@ -2456,7 +2510,9 @@
             const classFilter = classFilterEl ? classFilterEl.value : 'ALL';
             const statusFilter = statusFilterEl ? statusFilterEl.value : 'ALL';
 
-            const filteredExams = examsList.filter(ex => {
+            const baseAccessibleExams = getVisibleExamsForCurrentStaff();
+
+            const filteredExams = baseAccessibleExams.filter(ex => {
                 const isSubmitted = ex.submissionStatus === 'SUBMITTED' || ex.submissionStatus === 'REVISED';
                 if (isProctor && !isSubmitted) {
                     return false;
@@ -2473,7 +2529,7 @@
                 }
 
                 if (searchQuery) {
-                    const hay = `${ex.title} ${ex.submittedBy || ''} kelas ${ex.classLevel}`.toLowerCase();
+                    const hay = `${ex.title} ${ex.ownerName || ''} ${ex.submittedBy || ''} kelas ${ex.classLevel}`.toLowerCase();
                     if (!hay.includes(searchQuery)) return false;
                 }
                 return true;
@@ -2488,7 +2544,7 @@
                     <div class="col-span-full p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 text-sm text-slate-500">
                         ${isProctor
                             ? 'Belum ada paket ujian yang dikirimkan oleh Guru (atau tidak sesuai filter pencarian).'
-                            : 'Tidak ada folder paket ujian yang sesuai filter. Buat folder paket baru di tab <strong>Folder & Bank Soal</strong>.'}
+                            : 'Anda belum memiliki folder paket soal sendiri. Buat folder paket soal Anda di tab <strong>Folder & Bank Soal</strong>.'}
                     </div>
                 `;
                 refreshIcons();
@@ -2512,25 +2568,26 @@
 
                 const isSubmitted = ex.submissionStatus === 'SUBMITTED' || ex.submissionStatus === 'REVISED';
                 let submissionBadge = '';
+                const ownerLabel = ex.ownerName || ex.submittedBy || 'Guru Mapel';
                 if (!isSubmitted) {
                     submissionBadge = `
                         <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
                             <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
-                            <span>Draf Guru (Belum Dikirim ke Proktor)</span>
+                            <span>Draf Pribadi (Belum Dikirim ke Proktor)</span>
                         </div>
                     `;
                 } else if (ex.submissionStatus === 'REVISED') {
                     submissionBadge = `
                         <div class="flex items-center gap-1.5 text-[11px] font-bold text-indigo-800 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
-                            <span>Revisi #${ex.revisionCount || 1} • ${escapeHTML(ex.submittedBy || 'Guru')}</span>
+                            <span>Revisi #${ex.revisionCount || 1} • Pembuat: ${escapeHTML(ownerLabel)}</span>
                         </div>
                     `;
                 } else {
                     submissionBadge = `
                         <div class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
                             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i>
-                            <span>Dari ${escapeHTML(ex.submittedBy || 'Guru')}</span>
+                            <span>Pembuat: ${escapeHTML(ownerLabel)}</span>
                         </div>
                     `;
                 }
@@ -2644,6 +2701,11 @@
         }
 
         function jumpToGuruExamSubmission(examId) {
+            const targetExam = examsList.find(ex => ex.id === examId);
+            if (currentRole === 'GURU' && !isCurrentGuruOwnerOfExam(targetExam)) {
+                showToast('Anda tidak memiliki akses ke folder soal milik guru lain!', 'error');
+                return;
+            }
             switchProctorTab('questions');
             const filterSelect = document.getElementById('pq-filter-exam');
             const builderSelect = document.getElementById('pq-exam-id');
@@ -3211,17 +3273,36 @@
          * TABEL MONITORING REALTIME & BUKA BLOKIR (PROKTOR & GURU PENGAWAS)
          */
         function switchProctorTab(tabName) {
+            // Penjagaan RBAC: Guru dilarang keras mengakses tab 'accounts' dan 'staff'
+            if (currentRole !== 'PROCTOR' && (tabName === 'accounts' || tabName === 'staff')) {
+                tabName = 'questions';
+            }
+
             const tabs = ['monitoring', 'questions', 'accounts', 'staff'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`ptab-${t}`);
                 const panel = document.getElementById(`proctor-panel-${t}`);
                 if (!btn || !panel) return;
+
+                // Pastikan tab khusus Proktor tetap tersembunyi mutlak jika bukan Proktor
+                if (currentRole !== 'PROCTOR' && (t === 'accounts' || t === 'staff')) {
+                    btn.classList.add('hidden');
+                    btn.style.display = 'none';
+                    panel.classList.add('hidden');
+                    panel.style.display = 'none';
+                    return;
+                }
+
                 if (t === tabName) {
                     btn.className = 'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-900 text-white shadow-sm flex items-center gap-2';
+                    btn.style.display = 'flex';
                     panel.classList.remove('hidden');
+                    panel.style.display = '';
                 } else {
                     btn.className = 'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:bg-slate-100 flex items-center gap-2';
+                    btn.style.display = 'flex';
                     panel.classList.add('hidden');
+                    panel.style.display = 'none';
                 }
             });
             refreshIcons();
@@ -4126,18 +4207,19 @@
 
             const prevBuilderVal = builderSelect.value;
             const prevFilterVal = filterSelect.value;
+            const visibleExams = getVisibleExamsForCurrentStaff();
 
-            if (examsList.length === 0) {
-                builderSelect.innerHTML = `<option value="">-- Buat Folder Paket Terlebih Dahulu --</option>`;
-                filterSelect.innerHTML = `<option value="ALL">Belum Ada Folder Paket</option>`;
+            if (visibleExams.length === 0) {
+                builderSelect.innerHTML = `<option value="">-- Buat Folder Paket Milik Anda Terlebih Dahulu --</option>`;
+                filterSelect.innerHTML = `<option value="ALL">Belum Ada Folder Paket Anda</option>`;
                 return;
             }
 
-            builderSelect.innerHTML = examsList.map(ex => `
+            builderSelect.innerHTML = visibleExams.map(ex => `
                 <option value="${ex.id}">${escapeHTML(ex.title)} (Kls ${ex.classLevel} • ${ex.durationMinutes}m)</option>
             `).join('');
 
-            filterSelect.innerHTML = `<option value="ALL">Semua Folder (${examsList.length} Paket)</option>` + examsList.map(ex => `
+            filterSelect.innerHTML = `<option value="ALL">Semua Folder (${visibleExams.length} Paket)</option>` + visibleExams.map(ex => `
                 <option value="${ex.id}">${escapeHTML(ex.title)} (Kls ${ex.classLevel})</option>
             `).join('');
 
@@ -4151,7 +4233,7 @@
 
         function handleSaveGuruExamFolder(e) {
             e.preventDefault();
-            if (currentRole !== 'GURU') {
+            if (currentRole !== 'GURU' || !activeStaffUser) {
                 showToast('Hanya Guru yang dapat membuat atau mengubah folder paket soal!', 'error');
                 return;
             }
@@ -4168,7 +4250,11 @@
 
             if (editId) {
                 const folder = examsList.find(ex => ex.id === editId);
-                if (!folder) return;
+                if (!folder || !isCurrentGuruOwnerOfExam(folder)) {
+                    showToast('Akses ditolak! Anda hanya dapat mengedit folder milik Anda sendiri.', 'error');
+                    resetFolderBuilderForm();
+                    return;
+                }
                 folder.title = title;
                 folder.classLevel = classLevel;
                 folder.durationMinutes = durationMinutes;
@@ -4186,9 +4272,11 @@
                     title,
                     classLevel,
                     durationMinutes,
+                    ownerId: activeStaffUser.id,
+                    ownerName: activeStaffUser.name,
                     status: 'BELUM_DIMULAI',
                     submissionStatus: 'DRAFT',
-                    submittedBy: activeStaffUser ? activeStaffUser.name : 'Guru Mapel',
+                    submittedBy: activeStaffUser.name,
                     submittedAt: '',
                     revisionCount: 0
                 };
@@ -4206,14 +4294,17 @@
                 renderClassExamControls();
                 renderProctorQuestionsList();
                 resetFolderBuilderForm();
-                showToast(`Folder "${title}" (Kelas ${classLevel}, ${durationMinutes} menit) berhasil dibuat! Silakan isi soalnya.`, 'success');
+                showToast(`Folder pribadi "${title}" (Kelas ${classLevel}, ${durationMinutes} menit) berhasil dibuat!`, 'success');
             }
         }
 
         function startEditGuruExamFolder(examId) {
             if (currentRole !== 'GURU') return;
             const folder = examsList.find(ex => ex.id === examId);
-            if (!folder) return;
+            if (!folder || !isCurrentGuruOwnerOfExam(folder)) {
+                showToast('Akses ditolak! Folder ini milik guru lain.', 'error');
+                return;
+            }
 
             document.getElementById('gf-edit-id').value = folder.id;
             document.getElementById('gf-title').value = folder.title;
@@ -4246,7 +4337,10 @@
                 return;
             }
             const folder = examsList.find(ex => ex.id === examId);
-            if (!folder) return;
+            if (!folder || !isCurrentGuruOwnerOfExam(folder)) {
+                showToast('Akses ditolak! Anda tidak dapat menghapus folder milik guru lain.', 'error');
+                return;
+            }
 
             const qCount = getQuestionsForExam(examId).length;
             const isAlreadySent = folder.submissionStatus === 'SUBMITTED' || folder.submissionStatus === 'REVISED';
@@ -4295,6 +4389,11 @@
         }
 
         function toggleFolderSelectionForBatch(examId) {
+            const folder = examsList.find(ex => ex.id === examId);
+            if (!folder || !isCurrentGuruOwnerOfExam(folder)) {
+                showToast('Akses ditolak! Folder ini bukan milik Anda.', 'error');
+                return;
+            }
             if (selectedFolderIdsForBatch.has(examId)) {
                 selectedFolderIdsForBatch.delete(examId);
             } else {
@@ -4304,10 +4403,11 @@
         }
 
         function toggleSelectAllFolders() {
-            const draftIds = examsList
+            const myExams = getVisibleExamsForCurrentStaff();
+            const draftIds = myExams
                 .filter(ex => ex.submissionStatus !== 'SUBMITTED' && ex.submissionStatus !== 'REVISED')
                 .map(ex => ex.id);
-            const targetIds = draftIds.length > 0 ? draftIds : examsList.map(ex => ex.id);
+            const targetIds = draftIds.length > 0 ? draftIds : myExams.map(ex => ex.id);
             const allSelected = targetIds.length > 0 && targetIds.every(id => selectedFolderIdsForBatch.has(id));
             if (allSelected) {
                 selectedFolderIdsForBatch.clear();
@@ -4318,6 +4418,11 @@
         }
 
         function selectFolderToViewQuestions(examId) {
+            const folder = examsList.find(ex => ex.id === examId);
+            if (currentRole === 'GURU' && (!folder || !isCurrentGuruOwnerOfExam(folder))) {
+                showToast('Akses ditolak! Anda tidak dapat membuka folder milik guru lain.', 'error');
+                return;
+            }
             const filterEl = document.getElementById('pq-filter-exam');
             const builderSelect = document.getElementById('pq-exam-id');
             if (filterEl) filterEl.value = examId;
@@ -4338,9 +4443,9 @@
 
         function guruBatchSubmitSelectedPackages() {
             if (currentRole !== 'GURU') return;
-            const selectedExams = examsList.filter(ex => selectedFolderIdsForBatch.has(ex.id));
+            const selectedExams = examsList.filter(ex => selectedFolderIdsForBatch.has(ex.id) && isCurrentGuruOwnerOfExam(ex));
             if (selectedExams.length === 0) {
-                showToast('Centang minimal 1 folder paket soal untuk dikirim ke Proktor!', 'warning');
+                showToast('Centang minimal 1 folder paket soal milik Anda untuk dikirim ke Proktor!', 'warning');
                 return;
             }
 
@@ -4494,7 +4599,7 @@
             if (exam.submissionStatus === 'SUBMITTED' || exam.submissionStatus === 'REVISED') {
                 exam.submissionStatus = 'REVISED';
                 exam.revisionCount = (exam.revisionCount || 0) + 1;
-                exam.submittedBy = activeStaffUser ? activeStaffUser.name : exam.submittedBy;
+                exam.submittedBy = exam.ownerName || (activeStaffUser ? activeStaffUser.name : exam.submittedBy);
                 exam.submittedAt = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             }
         }
@@ -4505,7 +4610,10 @@
                 return;
             }
             const exam = examsList.find(ex => ex.id === examId);
-            if (!exam) return;
+            if (!exam || !isCurrentGuruOwnerOfExam(exam)) {
+                showToast('Akses ditolak! Anda hanya dapat mengirimkan folder paket soal milik Anda sendiri.', 'error');
+                return;
+            }
 
             const examQs = getQuestionsForExam(examId);
             if (examQs.length === 0) {
@@ -4556,8 +4664,24 @@
             const image = imageInput ? imageInput.value.trim() : '';
 
             if (!examId) {
-                showToast('Buat atau pilih Folder Paket Soal terlebih dahulu!', 'error');
+                showToast('Buat atau pilih Folder Paket Soal milik Anda terlebih dahulu!', 'error');
                 return;
+            }
+
+            const targetExam = examsList.find(ex => ex.id === examId);
+            if (!targetExam || !isCurrentGuruOwnerOfExam(targetExam)) {
+                showToast('Akses ditolak! Anda tidak dapat menambahkan atau mengedit soal pada folder milik guru lain.', 'error');
+                return;
+            }
+
+            if (editId) {
+                const existingQ = questionsList.find(q => q.id === editId);
+                const oldExam = existingQ ? examsList.find(ex => ex.id === existingQ.examId) : null;
+                if (!existingQ || !oldExam || !isCurrentGuruOwnerOfExam(oldExam)) {
+                    showToast('Akses ditolak! Soal ini milik guru lain.', 'error');
+                    resetQuestionBuilderForm();
+                    return;
+                }
             }
 
             if (!text) {
@@ -4644,6 +4768,11 @@
             }
             const q = questionsList.find(item => item.id === questionId);
             if (!q) return;
+            const parentExam = examsList.find(ex => ex.id === q.examId);
+            if (!parentExam || !isCurrentGuruOwnerOfExam(parentExam)) {
+                showToast('Akses ditolak! Anda tidak dapat merevisi soal milik guru lain.', 'error');
+                return;
+            }
 
             document.getElementById('pq-edit-id').value = q.id;
             document.getElementById('pq-exam-id').value = q.examId;
@@ -4693,6 +4822,11 @@
             }
             const q = questionsList.find(item => item.id === questionId);
             if (!q) return;
+            const parentExam = examsList.find(ex => ex.id === q.examId);
+            if (!parentExam || !isCurrentGuruOwnerOfExam(parentExam)) {
+                showToast('Akses ditolak! Anda tidak dapat menghapus soal milik guru lain.', 'error');
+                return;
+            }
 
             openCustomConfirm({
                 title: 'Hapus Butir Soal Ini?',
@@ -4739,9 +4873,21 @@
             if (!container) return;
 
             const isGuru = currentRole === 'GURU';
-            const filterVal = filterEl ? filterEl.value : 'ALL';
+            const visibleExams = getVisibleExamsForCurrentStaff();
+            const visibleExamIds = new Set(visibleExams.map(ex => ex.id));
 
-            if (folderStackCount) folderStackCount.textContent = examsList.length;
+            // Bersihkan pilihan batch jika ada ID folder yang bukan milik guru aktif
+            [...selectedFolderIdsForBatch].forEach(id => {
+                if (!visibleExamIds.has(id)) selectedFolderIdsForBatch.delete(id);
+            });
+
+            let filterVal = filterEl ? filterEl.value : 'ALL';
+            if (filterVal !== 'ALL' && !visibleExamIds.has(filterVal)) {
+                filterVal = 'ALL';
+                if (filterEl) filterEl.value = 'ALL';
+            }
+
+            if (folderStackCount) folderStackCount.textContent = visibleExams.length;
             if (batchToolbar) {
                 if (isGuru) batchToolbar.classList.remove('hidden');
                 else batchToolbar.classList.add('hidden');
@@ -4755,19 +4901,22 @@
             }
 
             if (submissionBar) {
-                if (examsList.length === 0) {
+                if (visibleExams.length === 0) {
                     submissionBar.innerHTML = `
                         <div class="p-6 text-center rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-xs sm:text-sm text-slate-500">
-                            Belum ada folder paket soal. ${isGuru ? 'Gunakan formulir <strong>Buat Folder / Paket Soal Baru</strong> di sebelah kiri untuk membuat paket ujian Anda.' : 'Menunggu Guru membuat & mengirimkan paket soal.'}
+                            ${isGuru
+                                ? `Anda (<strong>${escapeHTML(activeStaffUser?.name || 'Guru')}</strong>) belum membuat folder paket soal. Gunakan formulir <strong>Buat Folder / Paket Soal Baru</strong> di sebelah kiri untuk mulai menyusun soal Anda sendiri.`
+                                : 'Belum ada paket soal dari Guru.'}
                         </div>
                     `;
                 } else {
-                    submissionBar.innerHTML = examsList.map(ex => {
+                    submissionBar.innerHTML = visibleExams.map(ex => {
                         const qCnt = getQuestionsForExam(ex.id).length;
                         const maxPts = getExamMaxPoints(ex.id);
                         const isSubmitted = ex.submissionStatus === 'SUBMITTED' || ex.submissionStatus === 'REVISED';
                         const isSelectedFolder = filterVal === ex.id;
                         const isChecked = selectedFolderIdsForBatch.has(ex.id);
+                        const ownerDisplay = ex.ownerName || ex.submittedBy || 'Guru Mapel';
 
                         let badgeHTML = `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-extrabold">DRAF GURU</span>`;
                         if (ex.submissionStatus === 'SUBMITTED') {
@@ -4798,7 +4947,7 @@
                                             <span>${escapeHTML(ex.title)}</span>
                                         </div>
                                         <div class="text-[11px] text-slate-500">
-                                            <strong>${qCnt} Soal</strong> (Total ${maxPts} Poin) ${ex.submittedBy ? `• Penyusun: ${escapeHTML(ex.submittedBy)}` : ''}
+                                            <strong>${qCnt} Soal</strong> (Total ${maxPts} Poin) • Pembuat: <strong>${escapeHTML(ownerDisplay)}</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -4833,23 +4982,26 @@
 
             if (activeFolderSub) {
                 if (filterVal === 'ALL') {
-                    activeFolderSub.textContent = 'Menampilkan semua butir soal dari seluruh folder paket.';
+                    activeFolderSub.textContent = isGuru
+                        ? 'Menampilkan semua butir soal dari folder pribadi Anda.'
+                        : 'Menampilkan semua butir soal dari seluruh folder paket.';
                 } else {
-                    const activeEx = examsList.find(ex => ex.id === filterVal);
+                    const activeEx = visibleExams.find(ex => ex.id === filterVal);
                     activeFolderSub.textContent = activeEx
                         ? `Folder aktif: ${activeEx.title} (Kelas ${activeEx.classLevel} • ${activeEx.durationMinutes} Menit)`
                         : 'Menampilkan butir soal dari folder yang dipilih.';
                 }
             }
 
+            const accessibleQuestions = questionsList.filter(q => visibleExamIds.has(q.examId));
             const filteredQuestions = filterVal === 'ALL'
-                ? questionsList
-                : questionsList.filter(q => q.examId === filterVal);
+                ? accessibleQuestions
+                : accessibleQuestions.filter(q => q.examId === filterVal);
 
             countEl.textContent = filteredQuestions.length;
 
             if (filteredQuestions.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-sm text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-300">Belum ada butir soal pada folder ini.</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-sm text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-300">${isGuru ? 'Belum ada butir soal pada folder pribadi Anda.' : 'Belum ada butir soal pada folder ini.'}</div>`;
                 refreshIcons();
                 return;
             }
@@ -4986,11 +5138,11 @@
         }
     </script>
     <!-- ===================================================================== -->
-    <!-- SCRIPT 2: INTEGRASI GOOGLE SHEETS (EDUGUARD CBT V5 / STORAGE V7)      -->
+    <!-- SCRIPT 2: INTEGRASI GOOGLE SHEETS (DISESUAIKAN UNTUK INDEX_4.HTML)    -->
     <!-- ===================================================================== -->
     <script>
-        // GANTI URL DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT BARU ANDA (/exec)
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywDczo3ana7-JsBqhnuag2rMYKSTqKP6rfplTfAQaQlTDHmnIWmAJ2zinzVJfHDBT0aA/exec';
+        // GANTI URL DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT ANDA (/exec)
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSaSUpF-X5F0TQYlg2ucCbKBL3pErR0cvjgf_6JTqRJY7JRuEVe2hnCLaZ1pDRsZxUhA/exec';
 
         let isSyncingCloud = false;
         let pendingPushTimeout = null;
@@ -5021,7 +5173,6 @@
                             cloudMe.doubts = prevStudent.doubts;
                             cloudMe.score = prevStudent.score;
                             cloudMe.remainingSeconds = prevStudent.remainingSeconds;
-                            if (prevStudent.activeExamId) cloudMe.activeExamId = prevStudent.activeExamId;
                             if (cloudMe.status === 'BELUM_MULAI' && (Date.now() - prevStudent.lastUpdated < 15000)) {
                                 cloudMe.status = 'MENGERJAKAN';
                             }
@@ -5078,7 +5229,7 @@
             }, 500);
         }
 
-        // 3. Menimpa broadcastSync bawaan (kecuali TIMER_TICK)
+        // 3. Menimpa fungsi broadcastSync bawaan (kecuali TIMER_TICK)
         const originalBroadcastSync = broadcastSync;
         broadcastSync = function(eventType = 'DATA_UPDATED', payload = {}) {
             originalBroadcastSync(eventType, payload);
@@ -5087,7 +5238,7 @@
             }
         };
 
-        // 4. Refresh UI otomatis saat ada perubahan di Cloud
+        // 4. Refresh UI otomatis sesuai arsitektur index_4.html
         function refreshActiveScreenAfterCloudSync(wasBlocked) {
             if (currentRole === 'PROCTOR' || currentRole === 'GURU') {
                 if (activeStaffUser) {
@@ -5122,7 +5273,7 @@
                     return;
                 }
 
-                // Jika paket ujian yang sedang dibuka siswa dihapus oleh Guru atau ditarik kembali oleh Proktor
+                // Cek apakah paket ujian yang sedang dikerjakan dihapus/ditarik Proktor
                 const currentActiveExamObj = updatedMe.activeExamId ? examsList.find(ex => ex.id === updatedMe.activeExamId) : null;
                 if (updatedMe.activeExamId && (!currentActiveExamObj || currentActiveExamObj.submissionStatus === 'DRAFT')) {
                     stopExamTimer();
@@ -5135,14 +5286,13 @@
                     document.getElementById('blocked-overlay').classList.add('hidden');
                     document.getElementById('blocked-overlay').classList.remove('flex');
                     showStudentWaitingRoom(updatedMe, getExamForStudent(updatedMe));
-                    showToast('Paket ujian yang sedang dibuka telah dihapus/ditarik. Anda dikembalikan ke Ruang Tunggu.', 'warning');
                     return;
                 }
 
                 const activeExamsForClass = getActiveExamsForStudent(updatedMe);
                 const myExam = getExamForStudent(updatedMe);
 
-                // Jika Proktor mengakhiri paket ujian siswa
+                // Jika Proktor mengakhiri paket ujian
                 if (myExam && myExam.status === 'SELESAI' && updatedMe.activeExamId === myExam.id) {
                     if (updatedMe.status !== 'SELESAI') {
                         recalculateStudentScore(updatedMe);
@@ -5156,7 +5306,7 @@
                     return;
                 }
 
-                // Jika siswa di Ruang Tunggu dan Proktor memulai paket ujian
+                // Jika siswa di ruang tunggu dan Proktor memulai ujian
                 const isWaitingVisible = !document.getElementById('view-student-waiting').classList.contains('hidden');
                 if (isWaitingVisible && activeExamsForClass.length > 0) {
                     if (activeExamsForClass.length === 1) {
