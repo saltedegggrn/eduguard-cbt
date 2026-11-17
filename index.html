@@ -371,18 +371,9 @@
 
                             <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2">
                                 <span>Masuk Dashboard Pengawasan</span>
-                                <i data-lucide="monitor" class="w-4 h-4"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </button>
                         </form>
-
-                        <!-- FOOTER KARTU LOGIN: RESET DATA DEFAULT -->
-                        <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-                            <span>Kendala login atau data lama tersimpan?</span>
-                            <button type="button" onclick="resetToDefaultData()" class="px-3 py-1.5 rounded-lg bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-300 font-bold transition-colors flex items-center gap-1.5">
-                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                                <span>Reset Data Default</span>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -923,47 +914,71 @@
 
             <!-- TAB 3: DATABASE AKUN SISWA (HANYA PROKTOR) -->
             <div id="proctor-panel-accounts" style="display:none" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-5 bg-white rounded-3xl border-t-4 border-t-brand-600 border border-slate-200 p-6 shadow-sm h-fit space-y-4">
-                    <div>
-                        <h3 class="text-lg font-extrabold text-slate-900">Tambah Akun Siswa Baru</h3>
-                        <p class="text-xs text-slate-500">Hanya Proktor yang dapat membuat & mengelola database siswa.</p>
+                <div class="lg:col-span-5 space-y-5 h-fit">
+                    <!-- Tambah Satuan -->
+                    <div class="bg-white rounded-3xl border-t-4 border-t-brand-600 border border-slate-200 p-6 shadow-sm space-y-4">
+                        <div>
+                            <h3 class="text-lg font-extrabold text-slate-900">Tambah Akun Siswa Baru</h3>
+                            <p class="text-xs text-slate-500">Hanya Proktor yang dapat membuat & mengelola database siswa.</p>
+                        </div>
+                        <form onsubmit="handleAddStudentAccount(event)" class="space-y-3.5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Siswa *</label>
+                                <input type="text" id="new-student-name" required placeholder="Contoh: Rina Marlina" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Tingkat Kelas *</label>
+                                    <select id="new-student-level" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50">
+                                        <option value="7">Kelas 7</option>
+                                        <option value="8" selected>Kelas 8</option>
+                                        <option value="9">Kelas 9</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Rombel / Kelas *</label>
+                                    <input type="text" id="new-student-class" required placeholder="Contoh: Kelas 8A" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Password Login *</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="new-student-pass" required value="siswa123" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-brand-700">
+                                    <button type="button" onclick="generateRandomPassword('new-student-pass')" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold border border-slate-300">Acak</button>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm flex items-center justify-center gap-2">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                <span>Simpan Akun Siswa</span>
+                            </button>
+                        </form>
                     </div>
-                    <form onsubmit="handleAddStudentAccount(event)" class="space-y-3.5">
+
+                    <!-- Tambah Massal -->
+                    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Siswa *</label>
-                            <input type="text" id="new-student-name" required placeholder="Contoh: Rina Marlina" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
+                            <h4 class="text-sm font-extrabold text-slate-900">Import Massal Banyak Siswa</h4>
+                            <p class="text-[11px] text-slate-500">Format per baris: <code class="font-bold text-brand-700">Nama Lengkap;Kelas;Password</code></p>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Tingkat Kelas *</label>
-                                <select id="new-student-level" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50">
-                                    <option value="7">Kelas 7</option>
-                                    <option value="8" selected>Kelas 8</option>
-                                    <option value="9">Kelas 9</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Rombel / Kelas *</label>
-                                <input type="text" id="new-student-class" required placeholder="Contoh: Kelas 8A" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Password Login *</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="new-student-pass" required value="siswa123" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-brand-700">
-                                <button type="button" onclick="generateRandomPassword('new-student-pass')" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold border border-slate-300">Acak</button>
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm flex items-center justify-center gap-2">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                            <span>Simpan Akun Siswa</span>
+                        <textarea id="bulk-students-input" rows="4" placeholder="Ahmad Dani;Kelas 7A;siswa123&#10;Bakhrul Ulum;Kelas 8B;siswa123" class="w-full p-3 rounded-xl border border-slate-300 text-xs font-mono"></textarea>
+                        <button type="button" onclick="handleBulkImportStudents()" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5">
+                            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                            <span>Import Daftar Siswa</span>
                         </button>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-                    <h3 class="text-lg font-extrabold text-slate-900">Daftar Akun Siswa (<span id="accounts-count-label">0</span>)</h3>
-                    <div id="proctor-accounts-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-1"></div>
+                    <div class="flex items-center justify-between gap-2">
+                        <h3 class="text-lg font-extrabold text-slate-900">Daftar Akun Siswa (<span id="accounts-count-label">0</span>)</h3>
+                        <select id="accounts-level-filter" onchange="renderProctorAccountsList()" class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50">
+                            <option value="ALL">Semua Kelas</option>
+                            <option value="7">Kelas 7</option>
+                            <option value="8">Kelas 8</option>
+                            <option value="9">Kelas 9</option>
+                        </select>
+                    </div>
+                    <div id="proctor-accounts-list" class="space-y-3 max-h-[580px] overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
@@ -1049,10 +1064,10 @@
         };
 
         const STORAGE_KEYS = {
-            STAFF: 'eduguard_v5_staff',
-            STUDENTS: 'eduguard_v5_students',
-            EXAMS: 'eduguard_v5_exams',
-            QUESTIONS: 'eduguard_v5_questions'
+            STAFF: 'eduguard_clean_v6_staff',
+            STUDENTS: 'eduguard_clean_v6_students',
+            EXAMS: 'eduguard_clean_v6_exams',
+            QUESTIONS: 'eduguard_clean_v6_questions'
         };
 
         const QUESTION_TYPE_LABELS = {
@@ -1063,32 +1078,22 @@
             essay: { label: 'Esai / Paragraf', badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200' }
         };
 
-        const DEFAULT_STAFF = [
-            { id: 'staff-proktor', name: 'Proktor Utama', username: 'proktor', password: 'guru123', role: 'PROCTOR', assignedRoom: 'Pusat Kontrol', roomToken: 'PROKTOR1', isMaster: true },
-            { id: 'staff-ratna', name: 'Ibu Ratna Sari, S.Pd', username: 'guru', password: '123', role: 'GURU', assignedRoom: 'Ruangan 2', roomToken: 'R2-RATNA', isMaster: false },
-            { id: 'staff-aji', name: 'Pak Aji, S.Pd', username: 'pak_aji', password: '123', role: 'GURU', assignedRoom: 'Ruangan 1', roomToken: 'R1-AJI', isMaster: false }
-        ];
+        // DATABASE BERSIH DARI NOL: HANYA MENYISAKAN 1 AKUN PROKTOR UTAMA
+        const MASTER_PROCTOR_ACCOUNT = {
+            id: 'staff-proktor',
+            name: 'Proktor Utama',
+            username: 'proktor',
+            password: 'guru123',
+            role: 'PROCTOR',
+            assignedRoom: 'Pusat Kontrol',
+            roomToken: 'PROKTOR1',
+            isMaster: true
+        };
 
-        const DEFAULT_EXAMS = [
-            { id: 'exam-sb-7', title: 'Seni Budaya - Kelas 7', classLevel: '7', durationMinutes: 25, ownerId: 'staff-ratna', ownerName: 'Ibu Ratna Sari, S.Pd', submissionStatus: 'SUBMITTED', submittedBy: 'Ibu Ratna Sari, S.Pd', revisionCount: 0, status: 'BELUM_DIMULAI' },
-            { id: 'exam-tik-8', title: 'Informatika & TIK - Kelas 8', classLevel: '8', durationMinutes: 30, ownerId: 'staff-ratna', ownerName: 'Ibu Ratna Sari, S.Pd', submissionStatus: 'SUBMITTED', submittedBy: 'Ibu Ratna Sari, S.Pd', revisionCount: 0, status: 'BELUM_DIMULAI' },
-            { id: 'exam-ipa-9', title: 'IPA Terpadu - Kelas 9', classLevel: '9', durationMinutes: 35, ownerId: 'staff-aji', ownerName: 'Pak Aji, S.Pd', submissionStatus: 'DRAFT', submittedBy: '', revisionCount: 0, status: 'BELUM_DIMULAI' }
-        ];
-
-        const DEFAULT_STUDENTS = [
-            { id: 'std-1', name: 'Ahmad Dani', classLevel: '7', className: 'Kelas 7A', password: 'siswa123', supervisorId: '', assignedRoom: '', activeTokenUsed: '', tokenVerifyCount: 0, activeExamId: '', status: 'BELUM_MULAI', endedByProctor: false, violations: 0, answers: {}, doubts: {}, manualScores: {}, score: 0, remainingSeconds: 1500 },
-            { id: 'std-2', name: 'Bakhrul Ulum', classLevel: '8', className: 'Kelas 8A', password: 'siswa123', supervisorId: '', assignedRoom: '', activeTokenUsed: '', tokenVerifyCount: 0, activeExamId: '', status: 'BELUM_MULAI', endedByProctor: false, violations: 0, answers: {}, doubts: {}, manualScores: {}, score: 0, remainingSeconds: 1800 },
-            { id: 'std-3', name: 'Naufal Zacky Aprilio', classLevel: '9', className: 'Kelas 9A', password: 'siswa123', supervisorId: '', assignedRoom: '', activeTokenUsed: '', tokenVerifyCount: 0, activeExamId: '', status: 'BELUM_MULAI', endedByProctor: false, violations: 0, answers: {}, doubts: {}, manualScores: {}, score: 0, remainingSeconds: 2100 }
-        ];
-
-        const DEFAULT_QUESTIONS = [
-            { id: 'q-1', examId: 'exam-sb-7', type: 'multiple_choice', points: 50, text: 'Alat musik tradisional Angklung berasal dari provinsi mana?', image: '', options: ['Jawa Tengah', 'Jawa Barat', 'Bali', 'Sumatera Barat', 'Kalimantan Timur'], optionImages: ['', '', '', '', ''], correctIndex: 1 },
-            { id: 'q-2', examId: 'exam-sb-7', type: 'true_false', points: 50, text: 'Batik telah diakui oleh UNESCO sebagai Warisan Budaya Takbenda dari Indonesia.', image: '', correctBool: true },
-            { id: 'q-3', examId: 'exam-tik-8', type: 'multiple_choice', points: 40, text: 'Perangkat keras yang berfungsi sebagai otak pemrosesan utama pada komputer adalah...', image: '', options: ['RAM', 'CPU / Processor', 'Harddisk', 'Monitor'], optionImages: ['', '', '', ''], correctIndex: 1 },
-            { id: 'q-4', examId: 'exam-tik-8', type: 'checkboxes', points: 30, text: 'Pilih perangkat yang termasuk dalam kategori perangkat masukan (Input Device):', image: '', options: ['Keyboard', 'Printer', 'Mouse', 'Speaker', 'Scanner'], optionImages: ['', '', '', '', ''], correctIndices: [0, 2, 4] },
-            { id: 'q-5', examId: 'exam-tik-8', type: 'essay', points: 30, text: 'Jelaskan secara singkat mengapa menjaga keamanan kata sandi (password) sangat penting di era digital!', image: '', rubric: 'Menyebutkan perlindungan data pribadi & pencegahan peretasan akun.' },
-            { id: 'q-6', examId: 'exam-ipa-9', type: 'short_answer', points: 100, text: 'Satuan Internasional (SI) untuk besaran kuat arus listrik adalah...', image: '', acceptedAnswers: ['ampere', 'a'] }
-        ];
+        const DEFAULT_STAFF = [MASTER_PROCTOR_ACCOUNT];
+        const DEFAULT_EXAMS = [];
+        const DEFAULT_STUDENTS = [];
+        const DEFAULT_QUESTIONS = [];
 
         // STATE GLOBAL
         let staffList = [];
@@ -1108,7 +1113,7 @@
         let syncChannel = null;
         try {
             if ('BroadcastChannel' in window) {
-                syncChannel = new BroadcastChannel('eduguard_cbt_v5_channel');
+                syncChannel = new BroadcastChannel('eduguard_cbt_clean_v6_channel');
             }
         } catch (e) { syncChannel = null; }
 
@@ -1118,12 +1123,15 @@
             }
         }
 
+        // HANYA MEMASTIKAN AKUN PROKTOR UTAMA YANG WAJIB ADA (AKUN GURU & SISWA BEBAS DIHAPUS PERMANEN)
         function ensureDefaultStaffAccounts() {
             if (!Array.isArray(staffList)) staffList = [];
-            DEFAULT_STAFF.forEach(def => {
-                const exists = staffList.some(s => s.username && s.username.toLowerCase() === def.username.toLowerCase());
-                if (!exists) staffList.push(JSON.parse(JSON.stringify(def)));
-            });
+            const hasMasterProctor = staffList.some(
+                s => s && s.username && s.username.trim().toLowerCase() === MASTER_PROCTOR_ACCOUNT.username
+            );
+            if (!hasMasterProctor) {
+                staffList.unshift(JSON.parse(JSON.stringify(MASTER_PROCTOR_ACCOUNT)));
+            }
         }
 
         function loadAllDataFromStorage() {
@@ -1133,20 +1141,20 @@
                 ensureDefaultStaffAccounts();
 
                 const rawStudents = safeStorage.getItem(STORAGE_KEYS.STUDENTS);
-                studentsList = rawStudents ? JSON.parse(rawStudents) : JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+                studentsList = rawStudents ? JSON.parse(rawStudents) : [];
 
                 const rawExams = safeStorage.getItem(STORAGE_KEYS.EXAMS);
-                examsList = rawExams ? JSON.parse(rawExams) : JSON.parse(JSON.stringify(DEFAULT_EXAMS));
+                examsList = rawExams ? JSON.parse(rawExams) : [];
 
                 const rawQuestions = safeStorage.getItem(STORAGE_KEYS.QUESTIONS);
-                questionsList = rawQuestions ? JSON.parse(rawQuestions) : JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+                questionsList = rawQuestions ? JSON.parse(rawQuestions) : [];
 
                 saveAllDataToStorage();
             } catch (err) {
                 staffList = JSON.parse(JSON.stringify(DEFAULT_STAFF));
-                studentsList = JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
-                examsList = JSON.parse(JSON.stringify(DEFAULT_EXAMS));
-                questionsList = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+                studentsList = [];
+                examsList = [];
+                questionsList = [];
                 saveAllDataToStorage();
             }
         }
@@ -1172,7 +1180,7 @@
             safeStorage.removeItem(STORAGE_KEYS.QUESTIONS);
             loadAllDataFromStorage();
             broadcastSync('FULL_RESET');
-            showToast('Data default dipulihkan! Silakan login sebagai proktor / guru123.', 'success');
+            showToast('Database berhasil dikosongkan ke kondisi awal (hanya akun proktor / guru123).', 'success');
         }
 
         // HELPER KELAS & KEPEMILIKAN FOLDER
@@ -1409,7 +1417,7 @@
             );
 
             if (!matchedStaff) {
-                showToast('Username atau password staf tidak sesuai! Klik "Reset Data Default" jika perlu.', 'error');
+                showToast('Username atau password staf tidak sesuai!', 'error');
                 return;
             }
 
@@ -2549,12 +2557,59 @@
             showToast(`Akun siswa ${name} berhasil dibuat.`, 'success');
         }
 
+        function handleBulkImportStudents() {
+            if (currentRole !== 'PROCTOR') return;
+            const rawText = document.getElementById('bulk-students-input').value.trim();
+            if (!rawText) {
+                showToast('Masukkan minimal satu baris data siswa!', 'warning');
+                return;
+            }
+            const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            let added = 0;
+            lines.forEach((line, idx) => {
+                const parts = line.split(';').map(p => p.trim());
+                if (parts.length < 2 || !parts[0]) return;
+                const name = parts[0];
+                const className = parts[1] || 'Kelas 8A';
+                const password = parts[2] || 'siswa123';
+                const levelMatch = className.match(/[789]/);
+                const classLevel = levelMatch ? levelMatch[0] : '8';
+                if (studentsList.some(s => s.name.toLowerCase() === name.toLowerCase())) return;
+                studentsList.push({
+                    id: 'std-' + Date.now() + '-' + idx,
+                    name, classLevel, className, password,
+                    supervisorId: '', assignedRoom: '', activeTokenUsed: '', tokenVerifyCount: 0,
+                    activeExamId: '', status: 'BELUM_MULAI', endedByProctor: false,
+                    violations: 0, answers: {}, doubts: {}, manualScores: {}, score: 0, remainingSeconds: 1800
+                });
+                added++;
+            });
+            if (added === 0) {
+                showToast('Tidak ada akun baru ditambahkan (periksa format atau duplikasi nama).', 'warning');
+                return;
+            }
+            document.getElementById('bulk-students-input').value = '';
+            broadcastSync('ACCOUNT_BULK_ADDED');
+            renderProctorAccountsList();
+            renderProctorMonitoringTable();
+            showToast(`${added} akun siswa berhasil diimport!`, 'success');
+        }
+
         function renderProctorAccountsList() {
             const container = document.getElementById('proctor-accounts-list');
             const label = document.getElementById('accounts-count-label');
+            const filterEl = document.getElementById('accounts-level-filter');
             if (!container) return;
-            if (label) label.textContent = studentsList.length;
-            container.innerHTML = studentsList.map(std => `
+            const filterLvl = filterEl ? filterEl.value : 'ALL';
+            const filteredStudents = filterLvl === 'ALL'
+                ? studentsList
+                : studentsList.filter(s => getStudentClassLevel(s) === String(filterLvl));
+            if (label) label.textContent = filteredStudents.length;
+            if (filteredStudents.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-xs sm:text-sm text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-300">Belum ada akun siswa terdaftar. Silakan buat akun siswa baru di formulir sebelah kiri.</div>`;
+                return;
+            }
+            container.innerHTML = filteredStudents.map(std => `
                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
                     <div>
                         <div class="font-bold text-sm">${escapeHTML(std.name)} <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-800 text-[11px]">${escapeHTML(std.className)} (Kls ${getStudentClassLevel(std)})</span></div>
@@ -3177,11 +3232,11 @@
         });
     </script>
     <!-- ===================================================================== -->
-    <!-- SCRIPT 2: INTEGRASI GOOGLE SHEETS (DISESUAIKAN UNTUK INDEX_5.HTML)    -->
+    <!-- SCRIPT 2: INTEGRASI GOOGLE SHEETS (DISESUAIKAN UNTUK INDEX_6.HTML)    -->
     <!-- ===================================================================== -->
     <script>
         // GANTI URL DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT ANDA (/exec)
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWGXx2TIw5uywAitA7YFr0qBQ_IYuE4fB3Oq3XUM3Sb44mRipGMYSJCLGYP0S54H8c/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQ7b_vk2cY62w0LAeygqZIcR6ju5IbtXhSbmE7tc-xbzcRQ4d49Wvbksn1wa53IvGz/exec';
 
         let isSyncingCloud = false;
         let pendingPushTimeout = null;
@@ -3275,7 +3330,7 @@
             }
         };
 
-        // 4. Refresh UI otomatis sesuai arsitektur index_5.html
+        // 4. Refresh UI otomatis sesuai struktur index_6.html
         function refreshActiveScreenAfterCloudSync(wasBlocked) {
             if (currentRole === 'PROCTOR' || currentRole === 'GURU') {
                 if (activeStaffUser) {
